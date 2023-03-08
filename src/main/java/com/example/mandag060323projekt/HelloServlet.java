@@ -68,6 +68,34 @@ public class HelloServlet extends HttpServlet {
 
     }
 
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        Map<String, Person> personMap = (Map<String, Person>) getServletContext().getAttribute("personMap");
+        String name = request.getParameter("newName");
+        String passWord = request.getParameter("passW");
+        String confirmPassWord = request.getParameter("confirmPassW");
+        //tjek for brugernavn
+        if (personMap.containsKey(name)) {
+            request.setAttribute("msg", "Sorry "+personMap.get(name)+"is already in use");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+        }
+        //tjek for passwordmatch
+        if (!passWord.equalsIgnoreCase(confirmPassWord)) {
+            request.setAttribute("msg", "There is a mismatch in your password");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+        }
+        //tjek for passwordlængde
+        if (passWord.equals(confirmPassWord) && passWord.length() < 6) {
+            request.setAttribute("msg", "Your password must be longer than 5 characters");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+        }
+
+        Person person = new Person(name, passWord);
+        personMap.put(person.getName(), person);
+        request.setAttribute("msg", "Please log in");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
+
+    }
+
     public void destroy() {
     }
 }
